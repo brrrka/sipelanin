@@ -13,10 +13,8 @@ class LogRepository {
     String? filterEventType,
     DateTime? filterDate,
   }) async {
-    Query query = _firestore
-        .collection('logs')
-        .orderBy('timestamp', descending: true)
-        .limit(_pageSize);
+    // where() harus sebelum orderBy() untuk menghindari kebutuhan composite index
+    Query query = _firestore.collection('logs');
 
     if (filterEventType != null &&
         filterEventType != 'Semua' &&
@@ -35,6 +33,8 @@ class LogRepository {
           .where('timestamp', isGreaterThanOrEqualTo: start)
           .where('timestamp', isLessThanOrEqualTo: end);
     }
+
+    query = query.orderBy('timestamp', descending: true).limit(_pageSize);
 
     if (startAfter != null) {
       query = query.startAfterDocument(startAfter);
