@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:sipelanin/core/constants/app_routes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sipelanin/core/providers/firebase_providers.dart';
+import 'package:sipelanin/core/providers/notification_settings_provider.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authStateProvider).valueOrNull;
+    final notifEnabled = ref.watch(notificationSettingsProvider);
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  bool _notificationEnabled = true;
+    // SharedPreferences mungkin belum siap — render fallback jika demikian
+    final prefsReady =
+        ref.watch(sharedPreferencesProvider).hasValue;
 
-  void _onLogout() {
-    Navigator.pushNamedAndRemoveUntil(
-      context, AppRoutes.login, (route) => false,
-    );
-  }
+    final displayName = user?.displayName ?? 'Petugas Perlintasan';
+    final email = user?.email ?? 'petugas@email.com';
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18,
-              color: AppColors.textPrimary),
+          icon: const Icon(Icons.arrow_back_ios_new,
+              size: 18, color: AppColors.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Profil & Pengaturan', style: TextStyle(
@@ -52,14 +52,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: Column(
               children: [
-                // Avatar with cyan ring
                 Container(
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: AppColors.surfaceLight,
-                    border: Border.all(color: AppColors.cyan.withValues(alpha: 0.5), width: 2),
+                    border: Border.all(
+                        color: AppColors.cyan.withValues(alpha: 0.5), width: 2),
                     boxShadow: [BoxShadow(
                       color: AppColors.cyan.withValues(alpha: 0.15),
                       blurRadius: 16, spreadRadius: 2,
@@ -68,13 +68,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: const Icon(Icons.person, size: 40, color: AppColors.cyan),
                 ),
                 const SizedBox(height: 14),
-                const Text('Nama Petugas', style: TextStyle(
+                Text(displayName, style: const TextStyle(
                   fontFamily: 'Poppins', fontSize: 16, fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 )),
                 const SizedBox(height: 4),
-                const Text('petugas@email.com', style: TextStyle(
-                  fontFamily: 'Poppins', fontSize: 12, color: AppColors.textSecondary,
+                Text(email, style: const TextStyle(
+                  fontFamily: 'Poppins', fontSize: 12,
+                  color: AppColors.textSecondary,
                 )),
                 const SizedBox(height: 12),
                 Container(
@@ -82,11 +83,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.cyanDim,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.cyan.withValues(alpha: 0.4)),
+                    border: Border.all(
+                        color: AppColors.cyan.withValues(alpha: 0.4)),
                   ),
                   child: const Text('Petugas Perlintasan', style: TextStyle(
-                    fontFamily: 'Poppins', fontSize: 11, fontWeight: FontWeight.w600,
-                    color: AppColors.cyan,
+                    fontFamily: 'Poppins', fontSize: 11,
+                    fontWeight: FontWeight.w600, color: AppColors.cyan,
                   )),
                 ),
               ],
@@ -112,7 +114,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 // Notification toggle
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 4),
                   child: Row(
                     children: [
                       Container(
@@ -127,16 +130,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(width: 14),
                       const Expanded(
                         child: Text('Notifikasi Sistem', style: TextStyle(
-                          fontFamily: 'Poppins', fontSize: 14, color: AppColors.textPrimary,
+                          fontFamily: 'Poppins', fontSize: 14,
+                          color: AppColors.textPrimary,
                         )),
                       ),
-                      Switch(
-                        value: _notificationEnabled,
-                        onChanged: (val) =>
-                            setState(() => _notificationEnabled = val),
-                        activeThumbColor: AppColors.cyan,
-                        activeTrackColor: AppColors.cyanDim,
-                      ),
+                      if (prefsReady)
+                        Switch(
+                          value: notifEnabled,
+                          onChanged: (val) => ref
+                              .read(notificationSettingsProvider.notifier)
+                              .toggle(val),
+                          activeThumbColor: AppColors.cyan,
+                          activeTrackColor: AppColors.cyanDim,
+                        )
+                      else
+                        const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.cyan,
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -145,7 +160,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // App version
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 14),
                   child: Row(
                     children: [
                       Container(
@@ -160,11 +176,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(width: 14),
                       const Expanded(
                         child: Text('Versi Aplikasi', style: TextStyle(
-                          fontFamily: 'Poppins', fontSize: 14, color: AppColors.textPrimary,
+                          fontFamily: 'Poppins', fontSize: 14,
+                          color: AppColors.textPrimary,
                         )),
                       ),
                       const Text('1.0.0', style: TextStyle(
-                        fontFamily: 'Poppins', fontSize: 13, color: AppColors.textHint,
+                        fontFamily: 'Poppins', fontSize: 13,
+                        color: AppColors.textHint,
                       )),
                     ],
                   ),
@@ -177,13 +195,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           // ── Log Out Button ──
           GestureDetector(
-            onTap: _onLogout,
+            onTap: () async {
+              await ref.read(authRepositoryProvider).signOut();
+              // GoRouter redirect otomatis mengirim ke /login
+              if (context.mounted) context.go('/login');
+            },
             child: Container(
               width: double.infinity,
               height: 52,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.danger.withValues(alpha: 0.5)),
+                border: Border.all(
+                    color: AppColors.danger.withValues(alpha: 0.5)),
                 color: AppColors.dangerDim,
               ),
               child: const Center(

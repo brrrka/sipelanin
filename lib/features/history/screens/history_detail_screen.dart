@@ -1,18 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:sipelanin/core/models/device_health_model.dart';
+import 'package:sipelanin/core/models/log_event_model.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 import 'package:sipelanin/shared/widgets/status_badge.dart';
 
 class HistoryDetailScreen extends StatelessWidget {
-  const HistoryDetailScreen({super.key});
+  final LogEventModel log;
 
-  static const List<Map<String, dynamic>> _components = [
-    {'name': 'Perangkat Sensing', 'status': 'Aktif', 'type': StatusType.active, 'icon': Icons.sensors},
-    {'name': 'Kamera', 'status': 'Standby', 'type': StatusType.standby, 'icon': Icons.camera_alt_outlined},
-    {'name': 'Perangkat Actuator', 'status': 'Aktif', 'type': StatusType.active, 'icon': Icons.settings_remote_outlined},
-  ];
+  const HistoryDetailScreen({super.key, required this.log});
 
   @override
   Widget build(BuildContext context) {
+    final snap = log.snapshotStatus;
+    final components = [
+      {
+        'name': 'Perangkat Sensing',
+        'status': snap.sensingUnitStatus,
+        'type': DeviceHealthModel.toStatusType(snap.sensingUnitStatus),
+        'icon': Icons.sensors,
+      },
+      {
+        'name': 'Kamera',
+        'status': snap.cameraUnitStatus,
+        'type': DeviceHealthModel.toStatusType(snap.cameraUnitStatus),
+        'icon': Icons.camera_alt_outlined,
+      },
+      {
+        'name': 'Perangkat Actuator',
+        'status': snap.actuatorUnit,
+        'type': DeviceHealthModel.toStatusType(snap.actuatorUnit),
+        'icon': Icons.settings_remote_outlined,
+      },
+    ];
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -43,28 +63,35 @@ class HistoryDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.safe.withValues(alpha: 0.4)),
+                border: Border.all(
+                  color: (log.isSafe ? AppColors.safe : AppColors.danger)
+                      .withValues(alpha: 0.4),
+                ),
                 boxShadow: [BoxShadow(
-                  color: AppColors.safe.withValues(alpha: 0.08),
+                  color: (log.isSafe ? AppColors.safe : AppColors.danger)
+                      .withValues(alpha: 0.08),
                   blurRadius: 20, spreadRadius: 2,
                 )],
               ),
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
-                      color: AppColors.safeDim,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      color: log.isSafe ? AppColors.safeDim : AppColors.dangerDim,
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(16)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Status Umum', style: TextStyle(
-                          fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins', fontSize: 13,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         )),
-                        StatusBadge.safe(),
+                        log.isSafe ? StatusBadge.safe() : StatusBadge.danger(),
                       ],
                     ),
                   ),
@@ -72,11 +99,23 @@ class HistoryDetailScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        _DetailRow(icon: Icons.warning_amber_rounded, label: 'Kejadian', value: 'Kereta melintas'),
+                        _DetailRow(
+                          icon: Icons.warning_amber_rounded,
+                          label: 'Kejadian',
+                          value: log.eventType,
+                        ),
                         const SizedBox(height: 10),
-                        _DetailRow(icon: Icons.calendar_today_outlined, label: 'Tanggal', value: '00/00/0000'),
+                        _DetailRow(
+                          icon: Icons.calendar_today_outlined,
+                          label: 'Tanggal',
+                          value: log.formattedDate,
+                        ),
                         const SizedBox(height: 10),
-                        _DetailRow(icon: Icons.access_time, label: 'Waktu', value: '00.00 WIB'),
+                        _DetailRow(
+                          icon: Icons.access_time,
+                          label: 'Waktu',
+                          value: log.formattedTime,
+                        ),
                       ],
                     ),
                   ),
@@ -92,12 +131,10 @@ class HistoryDetailScreen extends StatelessWidget {
             )),
             const SizedBox(height: 12),
 
-            ..._components.map((comp) {
+            ...components.map((comp) {
               final statusType = comp['type'] as StatusType;
-              final statusColor = statusType == StatusType.standby
-                  ? AppColors.standby : AppColors.safe;
-              final statusDim = statusType == StatusType.standby
-                  ? AppColors.standbyDim : AppColors.safeDim;
+              final statusColor = _colorForType(statusType);
+              final statusDim = _dimForType(statusType);
               return Container(
                 width: double.infinity,
                 margin: const EdgeInsets.only(bottom: 10),
@@ -112,7 +149,8 @@ class HistoryDetailScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: statusDim, borderRadius: BorderRadius.circular(10),
+                        color: statusDim,
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(comp['icon'] as IconData,
                           color: statusColor, size: 18),
@@ -120,11 +158,15 @@ class HistoryDetailScreen extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(comp['name'] as String, style: const TextStyle(
-                        fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.w500,
+                        fontFamily: 'Poppins', fontSize: 13,
+                        fontWeight: FontWeight.w500,
                         color: AppColors.textPrimary,
                       )),
                     ),
-                    StatusBadge(label: comp['status'] as String, type: statusType),
+                    StatusBadge(
+                      label: comp['status'] as String,
+                      type: statusType,
+                    ),
                   ],
                 ),
               );
@@ -133,6 +175,30 @@ class HistoryDetailScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _colorForType(StatusType t) {
+    switch (t) {
+      case StatusType.active:
+      case StatusType.safe:
+        return AppColors.safe;
+      case StatusType.standby:
+        return AppColors.standby;
+      case StatusType.danger:
+        return AppColors.danger;
+    }
+  }
+
+  Color _dimForType(StatusType t) {
+    switch (t) {
+      case StatusType.active:
+      case StatusType.safe:
+        return AppColors.safeDim;
+      case StatusType.standby:
+        return AppColors.standbyDim;
+      case StatusType.danger:
+        return AppColors.dangerDim;
+    }
   }
 }
 
@@ -154,11 +220,14 @@ class _DetailRow extends StatelessWidget {
             fontFamily: 'Poppins', fontSize: 12, color: AppColors.textSecondary,
           )),
         ),
-        const Text(': ', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-        Text(value, style: const TextStyle(
-          fontFamily: 'Poppins', fontSize: 12,
-          fontWeight: FontWeight.w600, color: AppColors.textPrimary,
-        )),
+        const Text(': ', style: TextStyle(
+            color: AppColors.textSecondary, fontSize: 12)),
+        Expanded(
+          child: Text(value, style: const TextStyle(
+            fontFamily: 'Poppins', fontSize: 12,
+            fontWeight: FontWeight.w600, color: AppColors.textPrimary,
+          )),
+        ),
       ],
     );
   }

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "723640289533",
+    "firebase_url": "https://sipelanin-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "sipelanin",
+    "storage_bucket": "sipelanin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:723640289533:android:7b080145eb364963a0d694",
+        "android_client_info": {
+          "package_name": "com.example.sipelanin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBX321qHtBZU4TJwZtRhur3KVCTYRmAvQQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

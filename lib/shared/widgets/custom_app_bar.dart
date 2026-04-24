@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:sipelanin/core/constants/app_routes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sipelanin/core/providers/notification_provider.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final String title;
 
   const CustomAppBar({super.key, required this.title});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unread = ref.watch(unreadCountProvider);
+
     return AppBar(
       backgroundColor: AppColors.background,
       elevation: 0,
@@ -33,15 +37,33 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_outlined,
-              color: AppColors.textSecondary, size: 24),
-          onPressed: () => Navigator.pushNamed(context, AppRoutes.notification),
+        // Tombol notifikasi dengan badge unread
+        Stack(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined,
+                  color: AppColors.textSecondary, size: 24),
+              onPressed: () => context.push('/notification'),
+            ),
+            if (unread > 0)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppColors.danger,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
         ),
         Padding(
           padding: const EdgeInsets.only(right: 14.0),
           child: GestureDetector(
-            onTap: () => Navigator.pushNamed(context, AppRoutes.profile),
+            onTap: () => context.push('/profile'),
             child: Container(
               width: 34,
               height: 34,

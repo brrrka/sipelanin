@@ -1,18 +1,21 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:sipelanin/core/constants/app_routes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sipelanin/core/providers/firebase_providers.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -21,8 +24,54 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _onLogin() {
-    Navigator.pushReplacementNamed(context, AppRoutes.main);
+  Future<void> _onLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      _showError('Email dan password tidak boleh kosong');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authRepositoryProvider).signIn(email, password);
+      // GoRouter redirect otomatis mengirim ke /main setelah login sukses
+    } on FirebaseAuthException catch (e) {
+      if (mounted) _showError(_translateAuthError(e.code));
+    } catch (_) {
+      if (mounted) _showError('Login gagal. Periksa koneksi internet.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message,
+          style: const TextStyle(fontFamily: 'Poppins', color: Colors.white)),
+      backgroundColor: AppColors.danger,
+      behavior: SnackBarBehavior.floating,
+    ));
+  }
+
+  String _translateAuthError(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'Akun tidak ditemukan';
+      case 'wrong-password':
+        return 'Password salah';
+      case 'invalid-email':
+        return 'Format email tidak valid';
+      case 'invalid-credential':
+        return 'Email atau password salah';
+      case 'too-many-requests':
+        return 'Terlalu banyak percobaan. Coba lagi nanti.';
+      case 'user-disabled':
+        return 'Akun ini telah dinonaktifkan';
+      default:
+        return 'Login gagal. Periksa koneksi internet.';
+    }
   }
 
   @override
@@ -80,7 +129,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: AppColors.surface,
                       borderRadius: BorderRadius.circular(26),
                       border: Border.all(
-                          color: AppColors.cyan.withValues(alpha: 0.4), width: 1.5),
+                          color: AppColors.cyan.withValues(alpha: 0.4),
+                          width: 1.5),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.cyan.withValues(alpha: 0.15),
@@ -163,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Masuk Button with gradient
+                  // Masuk Button
                   Container(
                     width: double.infinity,
                     height: 52,
@@ -184,17 +234,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
-                        onTap: _onLogin,
-                        child: const Center(
-                          child: Text(
-                            'Masuk',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
+                        onTap: _isLoading ? null : _onLogin,
+                        child: Center(
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const Text(
+                                  'Masuk',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
@@ -223,10 +282,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 16),
 
-                  // Alt login buttons placeholder
-                  _AltLoginButton(label: 'Login dengan Google', icon: Icons.g_mobiledata),
+                  _AltLoginButton(
+                      label: 'Login dengan Google',
+                      icon: Icons.g_mobiledata),
                   const SizedBox(height: 10),
-                  _AltLoginButton(label: 'Login lainnya', icon: Icons.more_horiz),
+                  _AltLoginButton(
+                      label: 'Login lainnya', icon: Icons.more_horiz),
 
                   const SizedBox(height: 24),
                 ],

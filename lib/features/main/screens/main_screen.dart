@@ -1,31 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sipelanin/core/providers/firebase_providers.dart';
+import 'package:sipelanin/core/services/fcm_service.dart';
+import 'package:sipelanin/core/services/local_notification_service.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
-import 'package:sipelanin/features/home/screens/home_screen.dart';
 import 'package:sipelanin/features/device_status/screens/device_status_screen.dart';
 import 'package:sipelanin/features/history/screens/history_screen.dart';
+import 'package:sipelanin/features/home/screens/home_screen.dart';
+import 'package:sipelanin/shared/widgets/connectivity_banner.dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends ConsumerState<MainScreen> {
   int _currentIndex = 0;
+  bool _fcmInitialized = false;
 
-  final List<Widget> _screens = const [
+  static const List<Widget> _screens = [
     HomeScreen(),
     DeviceStatusScreen(),
     HistoryScreen(),
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Inisialisasi FCM setelah frame pertama agar ref sudah siap
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initFcm());
+  }
+
+  Future<void> _initFcm() async {
+    if (_fcmInitialized) return;
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user == null) return;
+
+    final notifRepo = ref.read(notificationRepositoryProvider(user.uid));
+    final fcm = FcmService(LocalNotificationService());
+    await fcm.initialize(user.uid, notifRepo);
+    _fcmInitialized = true;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
+      body: ConnectivityBanner(
+        child: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
+        ),
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(

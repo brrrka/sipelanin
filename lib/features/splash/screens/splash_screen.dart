@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:sipelanin/core/constants/app_routes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sipelanin/core/providers/firebase_providers.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnim;
@@ -45,8 +47,14 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) Navigator.pushReplacementNamed(context, AppRoutes.login);
+    Future.delayed(const Duration(seconds: 3), () async {
+      if (!mounted) return;
+      // Cek auth state, tunggu jika masih loading
+      final user = await ref
+          .read(authStateProvider.future)
+          .timeout(const Duration(seconds: 5), onTimeout: () => null);
+      if (!mounted) return;
+      context.go(user != null ? '/main' : '/login');
     });
   }
 
@@ -96,7 +104,8 @@ class _SplashScreenState extends State<SplashScreen>
                         color: AppColors.surface,
                         borderRadius: BorderRadius.circular(32),
                         border: Border.all(
-                          color: AppColors.cyan.withValues(alpha: 0.4), width: 1.5),
+                            color: AppColors.cyan.withValues(alpha: 0.4),
+                            width: 1.5),
                         boxShadow: [
                           BoxShadow(
                             color: AppColors.cyan.withValues(alpha: 0.2),
@@ -114,7 +123,6 @@ class _SplashScreenState extends State<SplashScreen>
 
                     const SizedBox(height: 32),
 
-                    // System title
                     const Text(
                       'Sistem Peringatan Dini',
                       style: TextStyle(
@@ -139,7 +147,6 @@ class _SplashScreenState extends State<SplashScreen>
 
                     const SizedBox(height: 48),
 
-                    // Loading dots animation
                     FadeTransition(
                       opacity: _pulseAnim,
                       child: Row(
