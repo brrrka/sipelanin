@@ -21,8 +21,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   static const List<String> _filterOptions = [
     'Semua',
-    'Kereta Melintas',
     'Gagal Deteksi',
+    'Kamera Error',
+    'Kereta Datang',
+    'Kereta Selesai',
   ];
 
   @override
@@ -319,26 +321,38 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   Widget _buildError(String error) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.error_outline, color: AppColors.danger, size: 40),
-          const SizedBox(height: 12),
-          const Text(
-            'Gagal memuat riwayat',
-            style: TextStyle(
-              fontFamily: 'Poppins', fontSize: 14,
-              color: AppColors.textSecondary,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: AppColors.danger, size: 40),
+            const SizedBox(height: 12),
+            const Text(
+              'Gagal memuat riwayat',
+              style: TextStyle(
+                fontFamily: 'Poppins', fontSize: 14,
+                color: AppColors.textSecondary,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: () =>
-                ref.read(logsProvider.notifier).fetchInitial(),
-            child: const Text('Coba lagi',
-                style: TextStyle(color: AppColors.cyan)),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              error,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'Poppins', fontSize: 10,
+                color: AppColors.textHint,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () =>
+                  ref.read(logsProvider.notifier).fetchInitial(),
+              child: const Text('Coba lagi',
+                  style: TextStyle(color: AppColors.cyan)),
+            ),
+          ],
+        ),
       ),
     );
   }

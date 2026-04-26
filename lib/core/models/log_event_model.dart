@@ -40,7 +40,7 @@ class LogEventModel {
     required this.snapshotStatus,
   });
 
-  bool get isSafe => eventType == 'Kereta Melintas';
+  bool get isSafe => eventType == 'Kereta Selesai';
 
   String get formattedDate {
     final dt = timestamp.toDate();
