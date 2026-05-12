@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sipelanin/core/providers/firebase_providers.dart';
+import 'package:sipelanin/core/theme/app_color_scheme.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -36,7 +37,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isLoading = true);
     try {
       await ref.read(authRepositoryProvider).signIn(email, password);
-      // GoRouter redirect otomatis mengirim ke /main setelah login sukses
     } on FirebaseAuthException catch (e) {
       if (mounted) _showError(_translateAuthError(e.code));
     } catch (_) {
@@ -76,11 +76,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: Stack(
         children: [
-          // Top gradient accent
           Positioned(
             top: -60,
             right: -60,
@@ -90,7 +90,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(colors: [
-                  AppColors.cyan.withValues(alpha: 0.12),
+                  c.accent.withValues(alpha: 0.12),
                   Colors.transparent,
                 ]),
               ),
@@ -105,14 +105,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(colors: [
-                  AppColors.primary.withValues(alpha: 0.15),
+                  c.primary.withValues(alpha: 0.15),
                   Colors.transparent,
                 ]),
               ),
             ),
           ),
 
-          // Content
           SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -121,88 +120,83 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 children: [
                   const SizedBox(height: 56),
 
-                  // Logo
                   Container(
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: c.surface,
                       borderRadius: BorderRadius.circular(26),
                       border: Border.all(
-                          color: AppColors.cyan.withValues(alpha: 0.4),
-                          width: 1.5),
+                          color: c.accent.withValues(alpha: 0.4), width: 1.5),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.cyan.withValues(alpha: 0.15),
+                          color: c.accent.withValues(alpha: 0.15),
                           blurRadius: 24,
                           spreadRadius: 3,
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.train_rounded,
-                        size: 46, color: AppColors.cyan),
+                    child: Icon(Icons.train_rounded, size: 46, color: c.accent),
                   ),
 
                   const SizedBox(height: 20),
 
-                  const Text(
+                  Text(
                     'LOGIN',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: c.textPrimary,
                       letterSpacing: 4,
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
+                  Text(
                     'Sistem Peringatan Dini Perlintasan Sebidang',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: c.textSecondary,
                     ),
                   ),
 
                   const SizedBox(height: 44),
 
-                  // Email field
-                  _buildLabel('Email / Username'),
+                  _buildLabel(context, 'Email / Username'),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    style: const TextStyle(
-                        color: AppColors.textPrimary, fontFamily: 'Poppins'),
-                    decoration: const InputDecoration(
+                    style: TextStyle(
+                        color: c.textPrimary, fontFamily: 'Poppins'),
+                    decoration: InputDecoration(
                       hintText: 'Masukkan email atau username',
                       prefixIcon: Icon(Icons.person_outline,
-                          color: AppColors.textHint, size: 20),
+                          color: c.textHint, size: 20),
                     ),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // Password field
-                  _buildLabel('Password'),
+                  _buildLabel(context, 'Password'),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    style: const TextStyle(
-                        color: AppColors.textPrimary, fontFamily: 'Poppins'),
+                    style: TextStyle(
+                        color: c.textPrimary, fontFamily: 'Poppins'),
                     decoration: InputDecoration(
                       hintText: 'Masukkan password',
-                      prefixIcon: const Icon(Icons.lock_outline,
-                          color: AppColors.textHint, size: 20),
+                      prefixIcon: Icon(Icons.lock_outline,
+                          color: c.textHint, size: 20),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
-                          color: AppColors.textHint,
+                          color: c.textHint,
                           size: 20,
                         ),
                         onPressed: () =>
@@ -213,18 +207,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Masuk Button
                   Container(
                     width: double.infinity,
                     height: 52,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF1565C0), Color(0xFF1976D2)],
+                      gradient: LinearGradient(
+                        colors: [
+                          c.accent,
+                          Color.lerp(c.accent, Colors.white, 0.15)!,
+                        ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.4),
+                          color: c.accent.withValues(alpha: 0.35),
                           blurRadius: 16,
                           offset: const Offset(0, 6),
                         ),
@@ -261,10 +257,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                   const SizedBox(height: 28),
 
-                  // Divider
                   Row(
                     children: [
-                      const Expanded(child: Divider(color: AppColors.divider)),
+                      Expanded(child: Divider(color: c.divider)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Text(
@@ -272,11 +267,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 11,
-                            color: AppColors.textHint,
+                            color: c.textHint,
                           ),
                         ),
                       ),
-                      const Expanded(child: Divider(color: AppColors.divider)),
+                      Expanded(child: Divider(color: c.divider)),
                     ],
                   ),
 
@@ -299,15 +294,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Widget _buildLabel(String text) => Align(
+  Widget _buildLabel(BuildContext context, String text) => Align(
         alignment: Alignment.centerLeft,
         child: Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
       );
@@ -321,25 +316,26 @@ class _AltLoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       width: double.infinity,
       height: 48,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: c.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.surfaceBorder),
+        border: Border.all(color: c.surfaceBorder),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: AppColors.textSecondary, size: 20),
+          Icon(icon, color: c.textSecondary, size: 20),
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 13,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
           ),
         ],

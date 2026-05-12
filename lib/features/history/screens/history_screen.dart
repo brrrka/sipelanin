@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sipelanin/core/providers/log_provider.dart';
+import 'package:sipelanin/core/theme/app_color_scheme.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 import 'package:sipelanin/shared/widgets/custom_app_bar.dart';
 import 'package:sipelanin/shared/widgets/history_list_tile.dart';
@@ -21,8 +22,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   static const List<String> _filterOptions = [
     'Semua',
-    'Gagal Deteksi',
-    'Kamera Error',
     'Kereta Datang',
     'Kereta Selesai',
   ];
@@ -40,7 +39,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 
   void _onScroll() {
-    // Muat halaman berikutnya saat 200px dari bawah
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       ref.read(logsProvider.notifier).fetchNextPage();
@@ -48,20 +46,29 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 
   Future<void> _pickDate() async {
+    final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
-      builder: (context, child) {
+      builder: (ctx, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: AppColors.cyan,
-              onPrimary: AppColors.background,
-              surface: AppColors.surface,
-              onSurface: AppColors.textPrimary,
-            ),
+          data: Theme.of(ctx).copyWith(
+            colorScheme: isDark
+                ? ColorScheme.dark(
+                    primary: c.accent,
+                    onPrimary: c.background,
+                    surface: c.surface,
+                    onSurface: c.textPrimary,
+                  )
+                : ColorScheme.light(
+                    primary: c.accent,
+                    onPrimary: Colors.white,
+                    surface: c.surface,
+                    onSurface: c.textPrimary,
+                  ),
           ),
           child: child!,
         );
@@ -94,10 +101,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final logsState = ref.watch(logsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: const CustomAppBar(title: 'Riwayat'),
       body: Column(
         children: [
@@ -106,11 +114,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Row(
               children: [
-                const Text(
+                Text(
                   'Filter:',
                   style: TextStyle(
                     fontFamily: 'Poppins', fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: c.textSecondary,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -119,25 +127,25 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     height: 38,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: c.surface,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.surfaceBorder),
+                      border: Border.all(color: c.surfaceBorder),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: _selectedFilter,
-                        dropdownColor: AppColors.surface,
-                        hint: const Text('Pilih filter',
+                        dropdownColor: c.surface,
+                        hint: Text('Pilih filter',
                             style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontSize: 12,
-                                color: AppColors.textHint)),
-                        icon: const Icon(Icons.keyboard_arrow_down,
-                            size: 18, color: AppColors.textSecondary),
-                        style: const TextStyle(
+                                color: c.textHint)),
+                        icon: Icon(Icons.keyboard_arrow_down,
+                            size: 18, color: c.textSecondary),
+                        style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 12,
-                            color: AppColors.textPrimary),
+                            color: c.textPrimary),
                         items: _filterOptions
                             .map((f) => DropdownMenuItem(
                                   value: f,
@@ -150,7 +158,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Tombol date picker
                 GestureDetector(
                   onTap: _pickDate,
                   child: Container(
@@ -158,25 +165,22 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     height: 38,
                     decoration: BoxDecoration(
                       color: _selectedDate != null
-                          ? AppColors.cyanDim
-                          : AppColors.surface,
+                          ? c.accentDim
+                          : c.surface,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: _selectedDate != null
-                            ? AppColors.cyan.withValues(alpha: 0.5)
-                            : AppColors.surfaceBorder,
+                            ? c.accent.withValues(alpha: 0.5)
+                            : c.surfaceBorder,
                       ),
                     ),
                     child: Icon(
                       Icons.calendar_today_outlined,
                       size: 17,
-                      color: _selectedDate != null
-                          ? AppColors.cyan
-                          : AppColors.cyan,
+                      color: c.accent,
                     ),
                   ),
                 ),
-                // Tombol clear filter
                 if (_selectedFilter != null || _selectedDate != null) ...[
                   const SizedBox(width: 8),
                   GestureDetector(
@@ -209,17 +213,17 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.cyanDim,
+                    color: c.accentDim,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                        color: AppColors.cyan.withValues(alpha: 0.4)),
+                        color: c.accent.withValues(alpha: 0.4)),
                   ),
                   child: Text(
                     '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 11,
-                      color: AppColors.cyan,
+                      color: c.accent,
                     ),
                   ),
                 ),
@@ -241,11 +245,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                                 (logsState.isLoading ? 1 : 0),
                             itemBuilder: (context, index) {
                               if (index == logsState.items.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16),
                                   child: Center(
                                     child: CircularProgressIndicator(
-                                      color: AppColors.cyan,
+                                      color: c.accent,
                                       strokeWidth: 2,
                                     ),
                                   ),
@@ -271,11 +276,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 
   Widget _buildShimmer() {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Shimmer.fromColors(
-        baseColor: AppColors.surface,
-        highlightColor: AppColors.surfaceLight,
+        baseColor: c.surface,
+        highlightColor: c.surfaceLight,
         child: Column(
           children: List.generate(
             5,
@@ -284,7 +290,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               height: 72,
               margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: c.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
@@ -295,24 +301,25 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 
   Widget _buildEmpty() {
+    final c = context.colors;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.history, color: AppColors.textHint, size: 48),
+          Icon(Icons.history, color: c.textHint, size: 48),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Tidak ada riwayat ditemukan',
             style: TextStyle(
               fontFamily: 'Poppins', fontSize: 14,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
           ),
           if (_selectedFilter != null || _selectedDate != null)
             TextButton(
               onPressed: _clearFilters,
-              child: const Text('Hapus filter',
-                  style: TextStyle(color: AppColors.cyan)),
+              child: Text('Hapus filter',
+                  style: TextStyle(color: c.accent)),
             ),
         ],
       ),
@@ -320,6 +327,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 
   Widget _buildError(String error) {
+    final c = context.colors;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -328,28 +336,28 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           children: [
             const Icon(Icons.error_outline, color: AppColors.danger, size: 40),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Gagal memuat riwayat',
               style: TextStyle(
                 fontFamily: 'Poppins', fontSize: 14,
-                color: AppColors.textSecondary,
+                color: c.textSecondary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               error,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Poppins', fontSize: 10,
-                color: AppColors.textHint,
+                color: c.textHint,
               ),
             ),
             const SizedBox(height: 12),
             TextButton(
               onPressed: () =>
                   ref.read(logsProvider.notifier).fetchInitial(),
-              child: const Text('Coba lagi',
-                  style: TextStyle(color: AppColors.cyan)),
+              child: Text('Coba lagi',
+                  style: TextStyle(color: c.accent)),
             ),
           ],
         ),

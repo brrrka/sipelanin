@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:sipelanin/core/models/notification_model.dart';
 import 'package:sipelanin/core/providers/firebase_providers.dart';
 import 'package:sipelanin/core/providers/notification_provider.dart';
+import 'package:sipelanin/core/theme/app_color_scheme.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 
 class NotificationScreen extends ConsumerWidget {
@@ -11,36 +12,36 @@ class NotificationScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
     final notifsAsync = ref.watch(notificationsProvider);
     final uid = ref.watch(authStateProvider).valueOrNull?.uid;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: c.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new,
-              size: 18, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back_ios_new,
+              size: 18, color: c.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Notifikasi', style: TextStyle(
+        title: Text('Notifikasi', style: TextStyle(
           fontFamily: 'Poppins', fontSize: 17, fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: c.textPrimary,
         )),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1, color: AppColors.divider),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: c.divider),
         ),
       ),
       body: notifsAsync.when(
-        loading: () => _buildShimmer(),
-        error: (_, _) => _buildError(),
+        loading: () => _buildShimmer(context),
+        error: (_, _) => _buildError(context),
         data: (notifs) {
           final newNotifs = notifs.where((n) => !n.isRead).toList();
           final historyNotifs = notifs.where((n) => n.isRead).toList();
 
-          // Tandai semua sebagai dibaca saat layar dibuka
           if (newNotifs.isNotEmpty && uid != null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ref
@@ -50,19 +51,19 @@ class NotificationScreen extends ConsumerWidget {
           }
 
           if (notifs.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.notifications_off_outlined,
-                      color: AppColors.textHint, size: 48),
-                  SizedBox(height: 12),
+                      color: c.textHint, size: 48),
+                  const SizedBox(height: 12),
                   Text(
                     'Belum ada notifikasi',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: c.textSecondary,
                     ),
                   ),
                 ],
@@ -73,29 +74,28 @@ class NotificationScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             children: [
-              // Badge count header
               Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: AppColors.cyanDim,
+                  color: c.accentDim,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: AppColors.cyan.withValues(alpha: 0.3)),
+                      color: c.accent.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.notifications_active,
-                        color: AppColors.cyan, size: 18),
+                    Icon(Icons.notifications_active,
+                        color: c.accent, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       newNotifs.isEmpty
                           ? 'Tidak ada notifikasi baru'
                           : '${newNotifs.length} notifikasi baru',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 13,
-                        color: AppColors.cyan,
+                        color: c.accent,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -124,12 +124,13 @@ class NotificationScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildShimmer() {
+  Widget _buildShimmer(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Shimmer.fromColors(
-        baseColor: AppColors.surface,
-        highlightColor: AppColors.surfaceLight,
+        baseColor: c.surface,
+        highlightColor: c.surfaceLight,
         child: Column(
           children: List.generate(
             4,
@@ -138,7 +139,7 @@ class NotificationScreen extends ConsumerWidget {
               height: 80,
               margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: c.surface,
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
@@ -148,19 +149,20 @@ class NotificationScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildError() {
-    return const Center(
+  Widget _buildError(BuildContext context) {
+    final c = context.colors;
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.error_outline, color: AppColors.danger, size: 40),
-          SizedBox(height: 12),
+          const Icon(Icons.error_outline, color: AppColors.danger, size: 40),
+          const SizedBox(height: 12),
           Text(
             'Gagal memuat notifikasi',
             style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
           ),
         ],
@@ -175,9 +177,9 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(label, style: const TextStyle(
+    return Text(label, style: TextStyle(
       fontFamily: 'Poppins', fontSize: 14, fontWeight: FontWeight.w600,
-      color: AppColors.textPrimary,
+      color: context.colors.textPrimary,
     ));
   }
 }
@@ -190,6 +192,7 @@ class _NotifCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final statusColor = notif.isSafe ? AppColors.safe : AppColors.danger;
     final statusDim = notif.isSafe ? AppColors.safeDim : AppColors.dangerDim;
     final icon =
@@ -199,12 +202,12 @@ class _NotifCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: c.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isNew
               ? statusColor.withValues(alpha: 0.3)
-              : AppColors.surfaceBorder,
+              : c.surfaceBorder,
         ),
       ),
       child: Row(
@@ -227,19 +230,19 @@ class _NotifCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(notif.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: c.textPrimary,
                           )),
                     ),
                     if (isNew)
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.cyan,
+                        decoration: BoxDecoration(
+                          color: c.accent,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -247,18 +250,18 @@ class _NotifCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(notif.body,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: c.textSecondary,
                       height: 1.5,
                     )),
                 const SizedBox(height: 6),
                 Text(notif.formattedTime,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 10,
-                      color: AppColors.textHint,
+                      color: c.textHint,
                     )),
               ],
             ),

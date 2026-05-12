@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sipelanin/core/providers/firebase_providers.dart';
-import 'package:sipelanin/core/theme/app_colors.dart';
+import 'package:sipelanin/core/theme/app_color_scheme.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -49,7 +49,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     Future.delayed(const Duration(seconds: 3), () async {
       if (!mounted) return;
-      // Cek auth state, tunggu jika masih loading
       final user = await ref
           .read(authStateProvider.future)
           .timeout(const Duration(seconds: 5), onTimeout: () => null);
@@ -66,11 +65,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: Stack(
         children: [
-          // Background radial glow
           Center(
             child: Container(
               width: 320,
@@ -79,7 +78,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppColors.cyan.withValues(alpha: 0.07),
+                    c.accent.withValues(alpha: 0.07),
                     Colors.transparent,
                   ],
                 ),
@@ -87,7 +86,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             ),
           ),
 
-          // Main content
           Center(
             child: FadeTransition(
               opacity: _fadeAnim,
@@ -96,51 +94,50 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Logo box with glow
                     Container(
                       width: 130,
                       height: 130,
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: c.surface,
                         borderRadius: BorderRadius.circular(32),
                         border: Border.all(
-                            color: AppColors.cyan.withValues(alpha: 0.4),
+                            color: c.accent.withValues(alpha: 0.4),
                             width: 1.5),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.cyan.withValues(alpha: 0.2),
+                            color: c.accent.withValues(alpha: 0.2),
                             blurRadius: 30,
                             spreadRadius: 5,
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.train_rounded,
                         size: 60,
-                        color: AppColors.cyan,
+                        color: c.accent,
                       ),
                     ),
 
                     const SizedBox(height: 32),
 
-                    const Text(
+                    Text(
                       'Sistem Peringatan Dini',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: c.textPrimary,
                         letterSpacing: 0.3,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'Perlintasan Sebidang',
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.cyan,
+                        color: c.accent,
                         letterSpacing: 0.3,
                       ),
                     ),
@@ -158,8 +155,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: i == 1
-                                ? AppColors.cyan
-                                : AppColors.cyan.withValues(alpha: 0.4),
+                                ? c.accent
+                                : c.accent.withValues(alpha: 0.4),
                           ),
                         )),
                       ),

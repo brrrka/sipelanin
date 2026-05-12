@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sipelanin/core/models/device_health_model.dart';
 import 'package:sipelanin/core/providers/device_health_provider.dart';
+import 'package:sipelanin/core/theme/app_color_scheme.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 import 'package:sipelanin/shared/widgets/custom_app_bar.dart';
 import 'package:sipelanin/shared/widgets/status_badge.dart';
@@ -12,16 +13,17 @@ class DeviceStatusScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
     final healthAsync = ref.watch(deviceHealthProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: const CustomAppBar(title: 'Status Perangkat'),
       body: healthAsync.when(
-        loading: () => _buildShimmer(),
-        error: (e, _) => _buildError(),
+        loading: () => _buildShimmer(context),
+        error: (e, _) => _buildError(context),
         data: (health) {
-          if (health == null) return _buildError();
+          if (health == null) return _buildError(context);
 
           final sensingType =
               DeviceHealthModel.toStatusType(health.sensingUnitStatus);
@@ -69,7 +71,7 @@ class DeviceStatusScreen extends ConsumerWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: c.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: (allHealthy ? AppColors.safe : AppColors.danger)
@@ -111,11 +113,11 @@ class DeviceStatusScreen extends ConsumerWidget {
                               allHealthy
                                   ? 'Sistem beroperasi dengan baik'
                                   : 'Ada komponen bermasalah',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
+                                color: c.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -123,10 +125,10 @@ class DeviceStatusScreen extends ConsumerWidget {
                               allHealthy
                                   ? 'Semua komponen berfungsi normal'
                                   : 'Periksa komponen yang error',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontSize: 11,
-                                color: AppColors.textSecondary,
+                                color: c.textSecondary,
                               ),
                             ),
                           ],
@@ -154,9 +156,9 @@ class DeviceStatusScreen extends ConsumerWidget {
                         margin: EdgeInsets.only(right: i < 2 ? 8 : 0),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: c.surface,
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.surfaceBorder),
+                          border: Border.all(color: c.surfaceBorder),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,11 +175,11 @@ class DeviceStatusScreen extends ConsumerWidget {
                             const SizedBox(height: 8),
                             Text(
                               comp['name'] as String,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontSize: 10,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.textSecondary,
+                                color: c.textSecondary,
                               ),
                               maxLines: 2,
                             ),
@@ -196,13 +198,13 @@ class DeviceStatusScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
 
                 // ── Detail Section ──
-                const Text(
+                Text(
                   'Detail Komponen',
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -217,28 +219,27 @@ class DeviceStatusScreen extends ConsumerWidget {
 
                 const SizedBox(height: 8),
 
-                // ── Footer scan time ──
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: c.surface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.surfaceBorder),
+                    border: Border.all(color: c.surfaceBorder),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Icon(Icons.access_time,
-                          size: 14, color: AppColors.textSecondary),
-                      SizedBox(width: 6),
+                          size: 14, color: c.textSecondary),
+                      const SizedBox(width: 6),
                       Text(
                         'Data diperbarui secara real-time',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: c.textSecondary,
                         ),
                       ),
                     ],
@@ -276,12 +277,13 @@ class DeviceStatusScreen extends ConsumerWidget {
     }
   }
 
-  Widget _buildShimmer() {
+  Widget _buildShimmer(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Shimmer.fromColors(
-        baseColor: AppColors.surface,
-        highlightColor: AppColors.surfaceLight,
+        baseColor: c.surface,
+        highlightColor: c.surfaceLight,
         child: Column(
           children: List.generate(
             4,
@@ -290,7 +292,7 @@ class DeviceStatusScreen extends ConsumerWidget {
               height: 80,
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: c.surface,
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
@@ -300,19 +302,20 @@ class DeviceStatusScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildError() {
+  Widget _buildError(BuildContext context) {
+    final c = context.colors;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.wifi_off, color: AppColors.danger, size: 40),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Gagal memuat status perangkat',
             style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
           ),
         ],
@@ -338,6 +341,7 @@ class _ComponentDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final statusColor = DeviceStatusScreen._colorForType(statusType);
     final statusDim = DeviceStatusScreen._dimForType(statusType);
 
@@ -345,9 +349,9 @@ class _ComponentDetailCard extends StatelessWidget {
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: c.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.surfaceBorder),
+        border: Border.all(color: c.surfaceBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,21 +370,21 @@ class _ComponentDetailCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(name, style: const TextStyle(
+                  child: Text(name, style: TextStyle(
                     fontFamily: 'Poppins', fontSize: 14,
-                    fontWeight: FontWeight.w600, color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600, color: c.textPrimary,
                   )),
                 ),
                 StatusBadge(label: status, type: statusType),
               ],
             ),
           ),
-          Divider(height: 1, thickness: 1, color: AppColors.divider),
+          Divider(height: 1, thickness: 1, color: c.divider),
           Padding(
             padding: const EdgeInsets.all(14),
-            child: Text(description, style: const TextStyle(
+            child: Text(description, style: TextStyle(
               fontFamily: 'Poppins', fontSize: 12,
-              color: AppColors.textSecondary, height: 1.6,
+              color: c.textSecondary, height: 1.6,
             )),
           ),
         ],

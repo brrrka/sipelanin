@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sipelanin/core/providers/firebase_providers.dart';
 import 'package:sipelanin/core/services/fcm_service.dart';
 import 'package:sipelanin/core/services/local_notification_service.dart';
-import 'package:sipelanin/core/theme/app_colors.dart';
+import 'package:sipelanin/core/theme/app_color_scheme.dart';
 import 'package:sipelanin/features/device_status/screens/device_status_screen.dart';
 import 'package:sipelanin/features/history/screens/history_screen.dart';
 import 'package:sipelanin/features/home/screens/home_screen.dart';
@@ -29,7 +29,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void initState() {
     super.initState();
-    // Inisialisasi FCM setelah frame pertama agar ref sudah siap
     WidgetsBinding.instance.addPostFrameCallback((_) => _initFcm());
   }
 
@@ -46,6 +45,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
       body: ConnectivityBanner(
         child: IndexedStack(
@@ -54,17 +54,17 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: AppColors.divider, width: 1),
+            top: BorderSide(color: c.divider, width: 1),
           ),
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
-          selectedItemColor: AppColors.navActive,
-          unselectedItemColor: AppColors.navInactive,
-          backgroundColor: AppColors.background,
+          selectedItemColor: c.navActive,
+          unselectedItemColor: c.navInactive,
+          backgroundColor: c.background,
           elevation: 0,
           items: const [
             BottomNavigationBarItem(

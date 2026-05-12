@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sipelanin/core/theme/app_colors.dart';
+import 'package:sipelanin/core/theme/app_color_scheme.dart';
 import 'package:sipelanin/shared/widgets/status_badge.dart';
 
 class HistoryListTile extends StatelessWidget {
@@ -20,15 +20,16 @@ class HistoryListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: c.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.surfaceBorder),
+          border: Border.all(color: c.surfaceBorder),
         ),
         child: Row(
           children: [
@@ -40,19 +41,19 @@ class HistoryListTile extends StatelessWidget {
                 children: [
                   Text(
                     eventName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
+                      color: c.textPrimary,
                       fontFamily: 'Poppins',
                     ),
                   ),
                   if (dateLocation.isNotEmpty)
                     Text(
                       dateLocation,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: AppColors.textSecondary,
+                        color: c.textSecondary,
                         fontFamily: 'Poppins',
                       ),
                     ),
@@ -61,9 +62,9 @@ class HistoryListTile extends StatelessWidget {
             ),
             Text(
               time,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: AppColors.textSecondary,
+                color: c.textSecondary,
                 fontFamily: 'Poppins',
               ),
             ),

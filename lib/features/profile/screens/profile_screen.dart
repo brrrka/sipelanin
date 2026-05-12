@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sipelanin/core/providers/firebase_providers.dart';
 import 'package:sipelanin/core/providers/notification_settings_provider.dart';
+import 'package:sipelanin/core/providers/theme_provider.dart';
+import 'package:sipelanin/core/theme/app_color_scheme.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -10,33 +12,33 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
     final user = ref.watch(authStateProvider).valueOrNull;
     final notifEnabled = ref.watch(notificationSettingsProvider);
-
-    // SharedPreferences mungkin belum siap — render fallback jika demikian
-    final prefsReady =
-        ref.watch(sharedPreferencesProvider).hasValue;
+    final prefsReady = ref.watch(sharedPreferencesProvider).hasValue;
+    final themeMode =
+        prefsReady ? ref.watch(themeModeProvider) : ThemeMode.light;
 
     final displayName = user?.displayName ?? 'Petugas Perlintasan';
     final email = user?.email ?? 'petugas@email.com';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: c.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new,
-              size: 18, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back_ios_new,
+              size: 18, color: c.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Profil & Pengaturan', style: TextStyle(
+        title: Text('Profil & Pengaturan', style: TextStyle(
           fontFamily: 'Poppins', fontSize: 17, fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: c.textPrimary,
         )),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1, color: AppColors.divider),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: c.divider),
         ),
       ),
       body: ListView(
@@ -46,9 +48,9 @@ class ProfileScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: c.surface,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.surfaceBorder),
+              border: Border.all(color: c.surfaceBorder),
             ),
             child: Column(
               children: [
@@ -57,38 +59,38 @@ class ProfileScreen extends ConsumerWidget {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.surfaceLight,
+                    color: c.surfaceLight,
                     border: Border.all(
-                        color: AppColors.cyan.withValues(alpha: 0.5), width: 2),
+                        color: c.accent.withValues(alpha: 0.5), width: 2),
                     boxShadow: [BoxShadow(
-                      color: AppColors.cyan.withValues(alpha: 0.15),
+                      color: c.accent.withValues(alpha: 0.15),
                       blurRadius: 16, spreadRadius: 2,
                     )],
                   ),
-                  child: const Icon(Icons.person, size: 40, color: AppColors.cyan),
+                  child: Icon(Icons.person, size: 40, color: c.accent),
                 ),
                 const SizedBox(height: 14),
-                Text(displayName, style: const TextStyle(
+                Text(displayName, style: TextStyle(
                   fontFamily: 'Poppins', fontSize: 16, fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: c.textPrimary,
                 )),
                 const SizedBox(height: 4),
-                Text(email, style: const TextStyle(
+                Text(email, style: TextStyle(
                   fontFamily: 'Poppins', fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: c.textSecondary,
                 )),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                   decoration: BoxDecoration(
-                    color: AppColors.cyanDim,
+                    color: c.accentDim,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                        color: AppColors.cyan.withValues(alpha: 0.4)),
+                        color: c.accent.withValues(alpha: 0.4)),
                   ),
-                  child: const Text('Petugas Perlintasan', style: TextStyle(
+                  child: Text('Petugas Perlintasan', style: TextStyle(
                     fontFamily: 'Poppins', fontSize: 11,
-                    fontWeight: FontWeight.w600, color: AppColors.cyan,
+                    fontWeight: FontWeight.w600, color: c.accent,
                   )),
                 ),
               ],
@@ -98,17 +100,17 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // ── Settings Section ──
-          const Text('Pengaturan', style: TextStyle(
+          Text('Pengaturan', style: TextStyle(
             fontFamily: 'Poppins', fontSize: 14, fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
+            color: c.textSecondary,
           )),
           const SizedBox(height: 10),
 
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: c.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.surfaceBorder),
+              border: Border.all(color: c.surfaceBorder),
             ),
             child: Column(
               children: [
@@ -121,17 +123,17 @@ class ProfileScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.cyanDim,
+                          color: c.accentDim,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.notifications_outlined,
-                            color: AppColors.cyan, size: 18),
+                        child: Icon(Icons.notifications_outlined,
+                            color: c.accent, size: 18),
                       ),
                       const SizedBox(width: 14),
-                      const Expanded(
+                      Expanded(
                         child: Text('Notifikasi Sistem', style: TextStyle(
                           fontFamily: 'Poppins', fontSize: 14,
-                          color: AppColors.textPrimary,
+                          color: c.textPrimary,
                         )),
                       ),
                       if (prefsReady)
@@ -140,23 +142,73 @@ class ProfileScreen extends ConsumerWidget {
                           onChanged: (val) => ref
                               .read(notificationSettingsProvider.notifier)
                               .toggle(val),
-                          activeThumbColor: AppColors.cyan,
-                          activeTrackColor: AppColors.cyanDim,
+                          activeThumbColor: c.accent,
+                          activeTrackColor: c.accentDim,
                         )
                       else
-                        const SizedBox(
+                        SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: AppColors.cyan,
+                            color: c.accent,
                           ),
                         ),
                     ],
                   ),
                 ),
 
-                Divider(height: 1, indent: 52, color: AppColors.divider),
+                Divider(height: 1, indent: 52, color: c.divider),
+
+                // Theme toggle
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 4),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: c.accentDim,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          themeMode == ThemeMode.dark
+                              ? Icons.dark_mode_outlined
+                              : Icons.light_mode_outlined,
+                          color: c.accent,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text('Mode Tampilan', style: TextStyle(
+                          fontFamily: 'Poppins', fontSize: 14,
+                          color: c.textPrimary,
+                        )),
+                      ),
+                      if (prefsReady)
+                        Switch(
+                          value: themeMode == ThemeMode.dark,
+                          onChanged: (_) =>
+                              ref.read(themeModeProvider.notifier).toggle(),
+                          activeThumbColor: c.accent,
+                          activeTrackColor: c.accentDim,
+                        )
+                      else
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: c.accent,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+
+                Divider(height: 1, indent: 52, color: c.divider),
 
                 // App version
                 Padding(
@@ -167,22 +219,22 @@ class ProfileScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
+                          color: c.surfaceLight,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.info_outline,
-                            color: AppColors.textSecondary, size: 18),
+                        child: Icon(Icons.info_outline,
+                            color: c.textSecondary, size: 18),
                       ),
                       const SizedBox(width: 14),
-                      const Expanded(
+                      Expanded(
                         child: Text('Versi Aplikasi', style: TextStyle(
                           fontFamily: 'Poppins', fontSize: 14,
-                          color: AppColors.textPrimary,
+                          color: c.textPrimary,
                         )),
                       ),
-                      const Text('1.0.0', style: TextStyle(
+                      Text('1.0.0', style: TextStyle(
                         fontFamily: 'Poppins', fontSize: 13,
-                        color: AppColors.textHint,
+                        color: c.textHint,
                       )),
                     ],
                   ),
@@ -197,7 +249,6 @@ class ProfileScreen extends ConsumerWidget {
           GestureDetector(
             onTap: () async {
               await ref.read(authRepositoryProvider).signOut();
-              // GoRouter redirect otomatis mengirim ke /login
               if (context.mounted) context.go('/login');
             },
             child: Container(

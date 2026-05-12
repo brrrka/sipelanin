@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sipelanin/core/models/device_health_model.dart';
 import 'package:sipelanin/core/models/log_event_model.dart';
+import 'package:sipelanin/core/theme/app_color_scheme.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 import 'package:sipelanin/shared/widgets/status_badge.dart';
 
@@ -11,6 +12,7 @@ class HistoryDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final snap = log.snapshotStatus;
     final components = [
       {
@@ -34,22 +36,22 @@ class HistoryDetailScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: c.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new,
-              size: 18, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back_ios_new,
+              size: 18, color: c.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Detail Riwayat', style: TextStyle(
+        title: Text('Detail Riwayat', style: TextStyle(
           fontFamily: 'Poppins', fontSize: 17, fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: c.textPrimary,
         )),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1, color: AppColors.divider),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: c.divider),
         ),
       ),
       body: SingleChildScrollView(
@@ -61,7 +63,7 @@ class HistoryDetailScreen extends StatelessWidget {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: c.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: (log.isSafe ? AppColors.safe : AppColors.danger)
@@ -79,17 +81,19 @@ class HistoryDetailScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
-                      color: log.isSafe ? AppColors.safeDim : AppColors.dangerDim,
+                      color: log.isSafe
+                          ? AppColors.safeDim
+                          : AppColors.dangerDim,
                       borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(16)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Status Umum', style: TextStyle(
+                        Text('Status Umum', style: TextStyle(
                           fontFamily: 'Poppins', fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: c.textPrimary,
                         )),
                         log.isSafe ? StatusBadge.safe() : StatusBadge.danger(),
                       ],
@@ -125,9 +129,9 @@ class HistoryDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            const Text('Status Komponen', style: TextStyle(
+            Text('Status Komponen', style: TextStyle(
               fontFamily: 'Poppins', fontSize: 15, fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: c.textPrimary,
             )),
             const SizedBox(height: 12),
 
@@ -140,9 +144,9 @@ class HistoryDetailScreen extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: c.surface,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.surfaceBorder),
+                  border: Border.all(color: c.surfaceBorder),
                 ),
                 child: Row(
                   children: [
@@ -157,10 +161,10 @@ class HistoryDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(comp['name'] as String, style: const TextStyle(
+                      child: Text(comp['name'] as String, style: TextStyle(
                         fontFamily: 'Poppins', fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.textPrimary,
+                        color: c.textPrimary,
                       )),
                     ),
                     StatusBadge(
@@ -210,22 +214,23 @@ class _DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Row(
       children: [
-        Icon(icon, size: 16, color: AppColors.cyan),
+        Icon(icon, size: 16, color: c.accent),
         const SizedBox(width: 10),
         SizedBox(
           width: 72,
-          child: Text(label, style: const TextStyle(
-            fontFamily: 'Poppins', fontSize: 12, color: AppColors.textSecondary,
+          child: Text(label, style: TextStyle(
+            fontFamily: 'Poppins', fontSize: 12, color: c.textSecondary,
           )),
         ),
-        const Text(': ', style: TextStyle(
-            color: AppColors.textSecondary, fontSize: 12)),
+        Text(': ', style: TextStyle(
+            color: c.textSecondary, fontSize: 12)),
         Expanded(
-          child: Text(value, style: const TextStyle(
+          child: Text(value, style: TextStyle(
             fontFamily: 'Poppins', fontSize: 12,
-            fontWeight: FontWeight.w600, color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600, color: c.textPrimary,
           )),
         ),
       ],

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sipelanin/core/providers/current_status_provider.dart';
 import 'package:sipelanin/core/providers/log_provider.dart';
+import 'package:sipelanin/core/theme/app_color_scheme.dart';
 import 'package:sipelanin/core/theme/app_colors.dart';
 import 'package:sipelanin/shared/widgets/custom_app_bar.dart';
 import 'package:sipelanin/shared/widgets/history_list_tile.dart';
@@ -14,11 +15,12 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
     final statusAsync = ref.watch(currentStatusProvider);
     final todayAsync = ref.watch(todayLogsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: const CustomAppBar(title: 'Home'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -26,22 +28,23 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // ── Status Terkini Header ──
-            const Text(
+            Text(
               'Status Terkini',
               style: TextStyle(
                 fontFamily: 'Poppins', fontSize: 15, fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: c.textPrimary,
               ),
             ),
             const SizedBox(height: 10),
 
             // ── Main Status Card ──
             statusAsync.when(
-              loading: () => _shimmerCard(),
-              error: (e, _) => _errorCard('Gagal memuat status sistem'),
+              loading: () => _shimmerCard(context),
+              error: (e, _) => _errorCard(context, 'Gagal memuat status sistem'),
               data: (status) {
-                if (status == null) return _errorCard('Data sistem tidak tersedia');
+                if (status == null) {
+                  return _errorCard(context, 'Data sistem tidak tersedia');
+                }
 
                 final statusColor =
                     status.isSafe ? AppColors.safe : AppColors.danger;
@@ -54,7 +57,7 @@ class HomeScreen extends ConsumerWidget {
                 return Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: c.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                         color: statusColor.withValues(alpha: 0.3)),
@@ -103,7 +106,7 @@ class HomeScreen extends ConsumerWidget {
                           height: 1,
                           indent: 16,
                           endIndent: 16,
-                          color: AppColors.divider),
+                          color: c.divider),
                       _InfoRow(
                           label: 'Deteksi Terakhir',
                           value: status.deteksiTerakhir),
@@ -111,7 +114,7 @@ class HomeScreen extends ConsumerWidget {
                           height: 1,
                           indent: 16,
                           endIndent: 16,
-                          color: AppColors.divider),
+                          color: c.divider),
                       _InfoRow(
                           label: 'Scan Terakhir',
                           value: status.scanTerakhir),
@@ -143,9 +146,9 @@ class HomeScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 18),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: c.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.surfaceBorder),
+                    border: Border.all(color: c.surfaceBorder),
                   ),
                   child: Row(
                     children: [
@@ -161,11 +164,11 @@ class HomeScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Text(
                         trainText,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
+                          color: c.textPrimary,
                         ),
                       ),
                     ],
@@ -180,11 +183,11 @@ class HomeScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Riwayat Hari Ini',
                   style: TextStyle(
                     fontFamily: 'Poppins', fontSize: 15,
-                    fontWeight: FontWeight.w600, color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600, color: c.textPrimary,
                   ),
                 ),
                 GestureDetector(
@@ -193,7 +196,7 @@ class HomeScreen extends ConsumerWidget {
                     'Lihat semua',
                     style: TextStyle(
                       fontFamily: 'Poppins', fontSize: 12,
-                      color: AppColors.cyan, fontWeight: FontWeight.w500,
+                      color: c.accent, fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -207,22 +210,22 @@ class HomeScreen extends ConsumerWidget {
                   3,
                   (_) => Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: _shimmerTile(),
+                    child: _shimmerTile(context),
                   ),
                 ),
               ),
-              error: (e, _) => _errorCard('Gagal memuat riwayat hari ini'),
+              error: (e, _) => _errorCard(context, 'Gagal memuat riwayat hari ini'),
               data: (logs) {
                 if (logs.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Center(
                       child: Text(
                         'Belum ada kejadian hari ini',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: c.textSecondary,
                         ),
                       ),
                     ),
@@ -245,42 +248,45 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _shimmerCard() {
+  Widget _shimmerCard(BuildContext context) {
+    final c = context.colors;
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceLight,
+      baseColor: c.surface,
+      highlightColor: c.surfaceLight,
       child: Container(
         width: double.infinity,
         height: 160,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: c.surface,
           borderRadius: BorderRadius.circular(16),
         ),
       ),
     );
   }
 
-  Widget _shimmerTile() {
+  Widget _shimmerTile(BuildContext context) {
+    final c = context.colors;
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceLight,
+      baseColor: c.surface,
+      highlightColor: c.surfaceLight,
       child: Container(
         width: double.infinity,
         height: 72,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: c.surface,
           borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
   }
 
-  Widget _errorCard(String message) {
+  Widget _errorCard(BuildContext context, String message) {
+    final c = context.colors;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: c.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
       ),
@@ -288,9 +294,9 @@ class HomeScreen extends ConsumerWidget {
         children: [
           const Icon(Icons.error_outline, color: AppColors.danger, size: 20),
           const SizedBox(width: 10),
-          Text(message, style: const TextStyle(
+          Text(message, style: TextStyle(
             fontFamily: 'Poppins', fontSize: 13,
-            color: AppColors.textSecondary,
+            color: c.textSecondary,
           )),
         ],
       ),
@@ -305,6 +311,7 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
       child: Row(
@@ -312,18 +319,18 @@ class _InfoRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 120,
-            child: Text(label, style: const TextStyle(
+            child: Text(label, style: TextStyle(
               fontFamily: 'Poppins', fontSize: 12,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             )),
           ),
-          const Text(': ', style: TextStyle(
-            fontSize: 12, color: AppColors.textSecondary, fontFamily: 'Poppins',
+          Text(': ', style: TextStyle(
+            fontSize: 12, color: c.textSecondary, fontFamily: 'Poppins',
           )),
           Expanded(
-            child: Text(value, style: const TextStyle(
+            child: Text(value, style: TextStyle(
               fontFamily: 'Poppins', fontSize: 12,
-              color: AppColors.textPrimary,
+              color: c.textPrimary,
             )),
           ),
         ],
