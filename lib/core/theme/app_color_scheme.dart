@@ -14,6 +14,9 @@ class AppColorExtension extends ThemeExtension<AppColorExtension> {
   final Color divider;
   final Color navActive;
   final Color navInactive;
+  // AppBar (header) colors — distinct from body in light mode
+  final Color appBarBackground;
+  final Color appBarForeground;
 
   const AppColorExtension({
     required this.background,
@@ -29,6 +32,8 @@ class AppColorExtension extends ThemeExtension<AppColorExtension> {
     required this.divider,
     required this.navActive,
     required this.navInactive,
+    required this.appBarBackground,
+    required this.appBarForeground,
   });
 
   @override
@@ -46,6 +51,8 @@ class AppColorExtension extends ThemeExtension<AppColorExtension> {
     Color? divider,
     Color? navActive,
     Color? navInactive,
+    Color? appBarBackground,
+    Color? appBarForeground,
   }) {
     return AppColorExtension(
       background: background ?? this.background,
@@ -61,6 +68,8 @@ class AppColorExtension extends ThemeExtension<AppColorExtension> {
       divider: divider ?? this.divider,
       navActive: navActive ?? this.navActive,
       navInactive: navInactive ?? this.navInactive,
+      appBarBackground: appBarBackground ?? this.appBarBackground,
+      appBarForeground: appBarForeground ?? this.appBarForeground,
     );
   }
 
@@ -81,39 +90,46 @@ class AppColorExtension extends ThemeExtension<AppColorExtension> {
       divider: Color.lerp(divider, other.divider, t)!,
       navActive: Color.lerp(navActive, other.navActive, t)!,
       navInactive: Color.lerp(navInactive, other.navInactive, t)!,
+      appBarBackground: Color.lerp(appBarBackground, other.appBarBackground, t)!,
+      appBarForeground: Color.lerp(appBarForeground, other.appBarForeground, t)!,
     );
   }
 
   static const dark = AppColorExtension(
-    background:    Color(0xFF0A1628),
-    surface:       Color(0xFF132038),
-    surfaceLight:  Color(0xFF1A2D4A),
-    surfaceBorder: Color(0xFF1E3A5F),
-    accent:        Color(0xFF00D4FF),
-    accentDim:     Color(0x2200D4FF),
-    primary:       Color(0xFF1565C0),
-    textPrimary:   Color(0xFFF0F4F8),
-    textSecondary: Color(0xFF8BA7C7),
-    textHint:      Color(0xFF4A6280),
-    divider:       Color(0xFF1E3A5F),
-    navActive:     Color(0xFF00D4FF),
-    navInactive:   Color(0xFF4A6280),
+    background:       Color(0xFF0A1628),
+    surface:          Color(0xFF132038),
+    surfaceLight:     Color(0xFF1A2D4A),
+    surfaceBorder:    Color(0xFF1E3A5F),
+    accent:           Color(0xFF00D4FF),
+    accentDim:        Color(0x2200D4FF),
+    primary:          Color(0xFF1565C0),
+    textPrimary:      Color(0xFFF0F4F8),
+    textSecondary:    Color(0xFF8BA7C7),
+    textHint:         Color(0xFF4A6280),
+    divider:          Color(0xFF1E3A5F),
+    navActive:        Color(0xFF00D4FF),
+    navInactive:      Color(0xFF4A6280),
+    appBarBackground: Color(0xFF0A1628),  // same as background
+    appBarForeground: Color(0xFFF0F4F8),  // same as textPrimary
   );
 
+  // Light mode: cream body (#EBE4D5) + dark-brown header (#513C33)
   static const light = AppColorExtension(
-    background:    Color(0xFFEBE4D5),
-    surface:       Color(0xFFF5EEE4),
-    surfaceLight:  Color(0xFFFFFFFF),
-    surfaceBorder: Color(0xFFD6CABA),
-    accent:        Color(0xFFFF803B),
-    accentDim:     Color(0x22FF803B),
-    primary:       Color(0xFF805C4D),
-    textPrimary:   Color(0xFF513C33),
-    textSecondary: Color(0xFF805C4D),
-    textHint:      Color(0xFFB39B8A),
-    divider:       Color(0xFFD6CABA),
-    navActive:     Color(0xFFFF803B),
-    navInactive:   Color(0xFFB39B8A),
+    background:       Color(0xFFEBE4D5),  // cream body
+    surface:          Color(0xFFEDE3CE),  // slightly warmer card surface
+    surfaceLight:     Color(0xFFF5EDE0),  // warm off-white for inputs
+    surfaceBorder:    Color(0xFFBF9A72),  // visible warm-brown border
+    accent:           Color(0xFFFF803B),  // orange
+    accentDim:        Color(0x22FF803B),
+    primary:          Color(0xFF805C4D),  // medium brown
+    textPrimary:      Color(0xFF513C33),  // dark brown
+    textSecondary:    Color(0xFF7D5C4A),  // medium brown
+    textHint:         Color(0xFFA88A72),  // warm light brown
+    divider:          Color(0xFFC8A880),  // warm tan divider
+    navActive:        Color(0xFFFF803B),  // orange on cream nav
+    navInactive:      Color(0xFFB39B8A),  // muted brown on cream nav
+    appBarBackground: Color(0xFF513C33),  // dark brown header
+    appBarForeground: Color(0xFFF5EDE0),  // warm cream text/icons on header
   );
 }
 

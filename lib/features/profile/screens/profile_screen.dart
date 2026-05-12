@@ -25,20 +25,23 @@ class ProfileScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: c.background,
+        backgroundColor: c.appBarBackground,
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new,
-              size: 18, color: c.textPrimary),
+              size: 18, color: c.appBarForeground),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text('Profil & Pengaturan', style: TextStyle(
           fontFamily: 'Poppins', fontSize: 17, fontWeight: FontWeight.w600,
-          color: c.textPrimary,
+          color: c.appBarForeground,
         )),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1, color: c.divider),
+          child: Divider(
+            height: 1, thickness: 1,
+            color: c.appBarForeground.withValues(alpha: 0.15),
+          ),
         ),
       ),
       body: ListView(

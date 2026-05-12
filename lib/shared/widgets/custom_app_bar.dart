@@ -14,17 +14,18 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final unread = ref.watch(unreadCountProvider);
     final c = context.colors;
+    final fg = c.appBarForeground;
 
     return AppBar(
-      backgroundColor: c.background,
+      backgroundColor: c.appBarBackground,
       elevation: 0,
       leading: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Container(
           decoration: BoxDecoration(
-            color: c.surface,
+            color: fg.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: c.surfaceBorder),
+            border: Border.all(color: fg.withValues(alpha: 0.2)),
           ),
           child: Icon(Icons.train, size: 20, color: c.accent),
         ),
@@ -35,15 +36,14 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
           fontFamily: 'Poppins',
           fontSize: 17,
           fontWeight: FontWeight.w600,
-          color: c.textPrimary,
+          color: fg,
         ),
       ),
       actions: [
         Stack(
           children: [
             IconButton(
-              icon: Icon(Icons.notifications_outlined,
-                  color: c.textSecondary, size: 24),
+              icon: Icon(Icons.notifications_outlined, color: fg, size: 24),
               onPressed: () => context.push('/notification'),
             ),
             if (unread > 0)
@@ -70,18 +70,21 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
               height: 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: c.surface,
-                border: Border.all(color: c.surfaceBorder),
+                color: fg.withValues(alpha: 0.12),
+                border: Border.all(color: fg.withValues(alpha: 0.25)),
               ),
-              child: Icon(Icons.person_outline,
-                  size: 18, color: c.textSecondary),
+              child: Icon(Icons.person_outline, size: 18, color: fg),
             ),
           ),
         ),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
-        child: Divider(height: 1, thickness: 1, color: c.divider),
+        child: Divider(
+          height: 1,
+          thickness: 1,
+          color: fg.withValues(alpha: 0.15),
+        ),
       ),
     );
   }

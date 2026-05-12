@@ -22,14 +22,15 @@ class AppTheme {
       ),
       textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
       appBarTheme: AppBarTheme(
-        backgroundColor: c.background,
+        backgroundColor: c.appBarBackground,
+        foregroundColor: c.appBarForeground,
         elevation: 0,
         scrolledUnderElevation: 0,
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.light,
         ),
-        iconTheme: IconThemeData(color: c.textPrimary),
+        iconTheme: IconThemeData(color: c.appBarForeground),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: c.background,
@@ -118,17 +119,19 @@ class AppTheme {
       ),
       textTheme: GoogleFonts.poppinsTextTheme(ThemeData.light().textTheme),
       appBarTheme: AppBarTheme(
-        backgroundColor: c.background,
+        backgroundColor: c.appBarBackground,   // dark brown header
+        foregroundColor: c.appBarForeground,   // warm cream text/icons
         elevation: 0,
         scrolledUnderElevation: 0,
+        // Status bar icons must be light (white) since header is dark brown
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
+          statusBarIconBrightness: Brightness.light,
         ),
-        iconTheme: IconThemeData(color: c.textPrimary),
+        iconTheme: IconThemeData(color: c.appBarForeground),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: c.background,
+        backgroundColor: c.background,        // cream — same as body
         selectedItemColor: c.navActive,
         unselectedItemColor: c.navInactive,
         type: BottomNavigationBarType.fixed,
